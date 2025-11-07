@@ -5,12 +5,18 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # ensure the action uses the provided GITHUB_TOKEN credentials
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -23,6 +29,13 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Show dist files (debug)
+        run: |
+          echo "---- dist listing ----"
+          ls -la dist || true
+          echo "---- dist/index.html head ----"
+          head -n 30 dist/index.html || true
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
